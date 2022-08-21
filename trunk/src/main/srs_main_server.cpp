@@ -117,9 +117,6 @@ srs_error_t do_main(int argc, char** argv)
         return srs_error_wrap(err, "config parse options");
     }
 
-    if (_srs_config->get_object_detection_enabled()) {
-        srs_trace("object detection is enabled");
-    }
     // change the work dir and set cwd.
     int r0 = 0;
     // 获取工作目录
@@ -136,7 +133,11 @@ srs_error_t do_main(int argc, char** argv)
     if ((err = _srs_log->initialize()) != srs_success) {
         return srs_error_wrap(err, "log initialize");
     }
-    
+
+    if (_srs_config->get_object_detection_enabled()) {
+        srs_trace("object detection is enabled");
+    }
+
     // config already applied to log.
     srs_trace2(TAG_MAIN, "%s, %s", RTMP_SIG_SRS_SERVER, RTMP_SIG_SRS_LICENSE);
     srs_trace("authors: %sand %s", RTMP_SIG_SRS_AUTHORS, SRS_CONSTRIBUTORS);
