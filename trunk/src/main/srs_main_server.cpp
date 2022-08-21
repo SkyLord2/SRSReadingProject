@@ -67,27 +67,27 @@ SrsServer* _srs_server = NULL;
 
 /**
  * main entrance.
- * ����ڴ�����
+ * 主入口处理函数
  */
 srs_error_t do_main(int argc, char** argv)
 {
     srs_error_t err = srs_success;
 
     // Initialize global or thread-local variables.
-    // ��ʼ��Э����صĹ���
-    // �˺����ڲ�����_srs_log��_srs_context��_srs_configȫ�ֶ���
-    // ������StateThreads��ĳ�ʼ������������IdleЭ�̣�����epoll����ѯ��ʱ����
-    // ����ȫ�ֹ������SrsHybridServer��SrsLiveSourceManager��SrsRtcSourceManager��SrsResourceManager
+    // 初始化协程相关的功能
+    // 此函数内部创建_srs_log、_srs_context、_srs_config全局对象
+    // 并调用StateThreads库的初始化函数，创建Idle协程（负责epoll和轮询定时器）
+    // 创建全局管理对象SrsHybridServer、SrsLiveSourceManager、SrsRtcSourceManager、SrsResourceManager
     if ((err = srs_thread_initialize()) != srs_success) {
         return srs_error_wrap(err, "thread init");
     }
 
     // For background context id.
-    // ����һ������ַ�����������Э�̵�id
+    // 生成一个随机字符串，设置主协程的id
     _srs_context->set_id(_srs_context->generate_id());
 
     // TODO: support both little and big endian.
-    // �Ƿ�ΪС��ģʽ
+    // 是否为小端模式
     srs_assert(srs_is_little_endian());
     
     // for gperf gmp or gcp,
@@ -105,14 +105,14 @@ srs_error_t do_main(int argc, char** argv)
 #endif
 
     // Ignore any error while detecting docker.
-    // ����Ƿ���docker����, _srs_in_docker = true or false
+    // 检测是否在docker环境, _srs_in_docker = true or false
     if ((err = srs_detect_docker()) != srs_success) {
         srs_error_reset(err);
     }
     
     // never use srs log(srs_trace, srs_error, etc) before config parse the option,
     // which will load the log config and apply it.
-    // ���������ļ�
+    // 解析配置文件
     if ((err = _srs_config->parse_options(argc, argv)) != srs_success) {
         return srs_error_wrap(err, "config parse options");
     }
@@ -122,7 +122,7 @@ srs_error_t do_main(int argc, char** argv)
     }
     // change the work dir and set cwd.
     int r0 = 0;
-    // ��ȡ����Ŀ¼
+    // 获取工作目录
     string cwd = _srs_config->get_work_dir();
     if (!cwd.empty() && cwd != "./" && (r0 = chdir(cwd.c_str())) == -1) {
         return srs_error_new(-1, "chdir to %s, r0=%d", cwd.c_str(), r0);
@@ -132,7 +132,7 @@ srs_error_t do_main(int argc, char** argv)
     }
     
     // config parsed, initialize log.
-    // ���ý�����ϣ���ʼ����־
+    // 配置解析完毕，初始化日志
     if ((err = _srs_log->initialize()) != srs_success) {
         return srs_error_wrap(err, "log initialize");
     }
@@ -153,18 +153,18 @@ srs_error_t do_main(int argc, char** argv)
         stringstream ss;
         
 #ifdef SRS_PERF_GLIBC_MEMORY_CHECK
-        // ��ȡ�����û�������
+        // 读取并设置环境变量
         // ensure glibc write error to stderr.
-        // ����LIBC_FATAL_STDERR_=1, ���Խ���Щ�ڴ������Ϣ�����stderr
+        // 设置LIBC_FATAL_STDERR_=1, 可以将这些内存错误信息输出到stderr
         string lfsov = srs_getenv("LIBC_FATAL_STDERR_");
         setenv("LIBC_FATAL_STDERR_", "1", 1);
         string lfsnv = srs_getenv("LIBC_FATAL_STDERR_");
         //
         // ensure glibc to do alloc check.
-        // Linux���ṩ��MALLOC_CHECK���Լ��malloc��free�����⣬GNU C Library ���Ը��ݻ�������MALLOC_CHECK_�������Ƿ�������ʱ�ɼ������е��ڴ����⡣���ڴ�������ʱ����ֵ÷ǳ��Ź֣�����random crash, crash�ĵ��־����䣬����coredump��Ҳûʲôջ��Ϣ����ʱ������������������֤һ�¡�ֻ�ǻ�û�취��ӡ������Ӧ�ĵ�ַ����Щ�ź���
-        // MALLOC_CHECK_ = 0, ��û����һ������������Щ����
-        // MALLOC_CHECK_ = 1, ����ӡһ������澯
-        // MALLOC_CHECK_ = 2, �����յ�SIGABRT�ź��˳�
+        // Linux下提供的MALLOC_CHECK可以检测malloc和free的问题，GNU C Library 可以根据环境变量MALLOC_CHECK_来决定是否在运行时可检测程序中的内存问题。而内存问题有时候表现得非常古怪，比如random crash, crash的点又经常变，甚至coredump中也没什么栈信息。这时候可以用这个方法来验证一下。只是还没办法打印出错点对应的地址，有些遗憾。
+        // MALLOC_CHECK_ = 0, 和没设置一样，将忽略这些错误
+        // MALLOC_CHECK_ = 1, 将打印一个错误告警
+        // MALLOC_CHECK_ = 2, 程序将收到SIGABRT信号退出
         string mcov = srs_getenv("MALLOC_CHECK_");
         setenv("MALLOC_CHECK_", "1", 1);
         string mcnv = srs_getenv("MALLOC_CHECK_");
@@ -172,11 +172,11 @@ srs_error_t do_main(int argc, char** argv)
 #endif
         
 #ifdef SRS_GPERF_MC
-        // tcmalloc��һ��������malloc���ڴ����⣬��ͬʱ�ṩ���ڴ�й¶���ڴ�Խ���Լ�Ұָ�������ڴ�����Ĺ���
-        // ���û�������HEAPCHECK=normal/strict/draconian,������������м��
-        // �Բ��ִ�����м�飺
+        // tcmalloc是一个类似于malloc的内存分配库，但同时提供了内存泄露，内存越界以及野指针检测与内存分析的功能
+        // 设置环境变量HEAPCHECK=normal/strict/draconian,对整个程序进行检查
+        // 对部分代码进行检查：
         // HeapProfileLeakChecker checker("foo");
-        // foo();    //����鲿��
+        // foo();    //待检查部分
 
         assert(checker.NoLeaks());
         string hcov = srs_getenv("HEAPCHECK");
@@ -189,8 +189,8 @@ srs_error_t do_main(int argc, char** argv)
 #endif
         
 #ifdef SRS_GPERF_MD
-        // ���ڴ�Խ���飬�ڷ���ʱ���䵽ҳ�ĵײ�������Խ��ʱ�ͻᱨ���ˡ�Ҳ����PAGE_FENCE
-        // ������ֻ�ܶ�heap��Խ���д�ļ��
+        // 打开内存越界检查，在分配时分配到页的底部，这样越界时就会报错了。也就是PAGE_FENCE
+        // 局限是只能对heap做越界读写的检查
         char* TCMALLOC_PAGE_FENCE = getenv("TCMALLOC_PAGE_FENCE");
         if (!TCMALLOC_PAGE_FENCE || strcmp(TCMALLOC_PAGE_FENCE, "1")) {
             srs_warn("gmd enabled without env TCMALLOC_PAGE_FENCE=1");
@@ -206,13 +206,13 @@ srs_error_t do_main(int argc, char** argv)
     }
     
     // we check the config when the log initialized.
-    // ��������ļ��Ƿ���ȷ����������Ƿ�Ϸ������ϵͳ�������������
+    // 检查配置文件是否正确，检查命令是否合法，检查系统的最大连接限制
     if ((err = _srs_config->check_config()) != srs_success) {
         return srs_error_wrap(err, "check config");
     }
     
     // features
-    // ��ӡ��ǰ���õ�����
+    // 打印当前采用的配置
     show_macro_features();
 
 #ifdef SRS_GPERF
@@ -224,7 +224,7 @@ srs_error_t do_main(int argc, char** argv)
         srs_trace("tcmalloc: set release-rate %.2f=>%.2f", otrr, trr);
     }
 #endif
-    // �˺����ڲ��ж��Ƿ���Ҫ�Ժ�̨ģʽ���У�������ȫ������
+    // 此函数内部判断是否需要以后台模式运行，并启动全部服务
     if ((err = run_directly_or_daemon()) != srs_success) {
         return srs_error_wrap(err, "run");
     }
@@ -256,7 +256,7 @@ void show_macro_features()
         ss << "features";
         
         // rch(rtmp complex handshake)
-        // ����
+        // 握手
         ss << ", rch:" << srs_bool2switch(true);
         ss << ", dash:" << "on";
         ss << ", hls:" << srs_bool2switch(true);
@@ -314,9 +314,9 @@ void show_macro_features()
         stringstream ss;
         
         // mw(merged-write)
-        // �����Ϊ���ṩЧ�ʣ�Ҳ�����merged-write,Ҳ����һ�η��ͼ���������ݵ��ͻ��ˣ�
-        // ���ͬ��Ҳ�ᵼ���ӳ١��ô��ǿ���֧�ֵĿͻ��˻��ࡣ
-        // �����ڵ��ӳٵĳ�����������Ҫ����Ҫ�����Ȩ�⣬��������õ���С��ֵ��
+        // 服务端为了提供效率，也会进行merged-write,也就是一次发送几毫秒的数据到客户端，
+        // 这个同样也会导致延迟。好处是可以支持的客户端会变多。
+        // 所以在低延迟的场景中我们需要根据要求进行权衡，将这个设置到较小的值。
         ss << "mw sleep:" << srsu2msi(SRS_PERF_MW_SLEEP) << "ms";
         
         // mr(merged-read)
@@ -335,7 +335,7 @@ void show_macro_features()
         stringstream ss;
         
         // gc(gop-cache)
-        // Ϊ�˼��ʵ��ӳ٣�����˿��Թر�GOP���棬������ǰһ��GOP��
+        // 为了减肥低延迟，服务端可以关闭GOP缓存，不缓存前一个GOP。
         ss << "gc:" << srs_bool2switch(SRS_PERF_GOP_CACHE);
         // pq(play-queue)
         ss << ", pq:" << srsu2msi(SRS_PERF_PLAY_QUEUE) << "ms";
@@ -417,17 +417,17 @@ srs_error_t srs_detect_docker()
     return err;
 }
 /// <summary>
-/// �˺����ڲ��ж��Ƿ���Ҫ�Ժ�̨ģʽ���У�������ȫ������
+/// 此函数内部判断是否需要以后台模式运行，并启动全部服务
 /// </summary>
 /// <returns>
-/// ���� �ɹ�����ʧ��
+/// 返回 成功或者失败
 /// </returns>
 srs_error_t run_directly_or_daemon()
 {
     srs_error_t err = srs_success;
 
     // Try to load the config if docker detect failed.
-    // docker �������ʧ�ܣ��������ļ��ж�ȡ�Ƿ���docker������
+    // docker 环境监测失败，从配置文件中读取是否处于docker环境中
     if (!_srs_in_docker) {
         _srs_in_docker = _srs_config->get_in_docker();
         if (_srs_in_docker) {
@@ -437,7 +437,7 @@ srs_error_t run_directly_or_daemon()
 
     // Load daemon from config, disable it for docker.
     // @see https://github.com/ossrs/srs/issues/1594
-    // �� docker �����У�������� disable_daemon_for_docker Ϊ on (Ĭ������Ϊon), ��ȡ����̨����
+    // 在 docker 环境中，如果设置 disable_daemon_for_docker 为 on (默认设置为on), 则取消后台运行
     bool run_as_daemon = _srs_config->get_daemon();
     if (run_as_daemon && _srs_in_docker && _srs_config->disable_daemon_for_docker()) {
         srs_warn("disable daemon for docker");
@@ -445,7 +445,7 @@ srs_error_t run_directly_or_daemon()
     }
     
     // If not daemon, directly run hybrid server.
-    // �Ǻ�̨���У�ֱ����������
+    // 非后台运行，直接启动服务
     if (!run_as_daemon) {
         if ((err = run_hybrid_server()) != srs_success) {
             return srs_error_wrap(err, "run hybrid");
@@ -491,15 +491,15 @@ srs_error_t run_directly_or_daemon()
     return err;
 }
 /// <summary>
-/// ���������������
+/// 创建启动各项服务
 /// </summary>
 /// <returns></returns>
 srs_error_t run_hybrid_server()
 {
     srs_error_t err = srs_success;
     // Create servers and register them.
-	// _srs_hybridָ��һ��ȫ��SrsHybridServer����
-	// ʵ�ʹ�������SrsServerAdapter��RtcServerAdapter��ע�뵽SrsHybridServer�����ڲ�
+    // _srs_hybrid指向一个全局SrsHybridServer对象
+    // 实际工作对象SrsServerAdapter和RtcServerAdapter被注入到SrsHybridServer对象内部
     _srs_hybrid->register_server(new SrsServerAdapter());
 
 #ifdef SRS_SRT
@@ -511,27 +511,27 @@ srs_error_t run_hybrid_server()
 #endif
 
     // Do some system initialize.
-    // �˺����ڲ��ֱ������������ڶ�ʱ����
-    // ���Ա�����ʽ����������ע���������initialize()����
+    // 此函数内部分别启动几个周期定时器，
+    // 并以遍历方式调用上面已注册服务器的initialize()函数
     if ((err = _srs_hybrid->initialize()) != srs_success) {
         return srs_error_wrap(err, "hybrid initialize");
     }
 
     // Circuit breaker to protect server, which depends on hybrid.
-    // ��ģ�����ڷ�ֹ���������أ�ʵ�ֹ��ر���
+    // 此模块用于防止服务器过载，实现过载保护
     if ((err = _srs_circuit_breaker->initialize()) != srs_success) {
         return srs_error_wrap(err, "init circuit breaker");
     }
 
     // Should run util hybrid servers all done.
-    // �˺����ڲ��Ա�����ʽ����������ע���������run�ӿڣ��������
-	// ����srs_usleep(SRS_UTIME_NO_TIMEOUT)ʹ��ǰ��ԭʼЭ�̽�������״̬
+    // 此函数内部以遍历方式调用上面已注册服务器的run接口，并在最后
+    // 调用srs_usleep(SRS_UTIME_NO_TIMEOUT)使当前的原始协程进入休眠状态
     if ((err = _srs_hybrid->run()) != srs_success) {
         return srs_error_wrap(err, "hybrid run");
     }
 
     // After all done, stop and cleanup.
-    // ���ִ�е������ʾ���������ѽ��������򼴽��˳�
+    // 如果执行到这里，表示整个服务已结束，程序即将退出
     _srs_hybrid->stop();
 
     return err;

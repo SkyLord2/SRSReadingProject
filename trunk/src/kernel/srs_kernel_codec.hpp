@@ -685,7 +685,7 @@ public:
     // video specified
     SrsVideoAvcFrameType frame_type;
     SrsVideoAvcFrameTrait avc_packet_type;
-    // whether sample_units contains IDR frame.
+    // whether sample_units contains IDR frame, update sps pps.
     bool has_idr;
     // Whether exists AUD NALU.
     bool has_aud;

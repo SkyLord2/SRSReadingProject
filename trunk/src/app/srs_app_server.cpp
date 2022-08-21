@@ -93,7 +93,7 @@ srs_error_t SrsBufferListener::listen(string i, int p)
     port = p;
     
     srs_freep(listener);
-    // ´´½¨Ò»¸öTCP¼àÌý
+    // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½TCPï¿½ï¿½ï¿½ï¿½
     listener = new SrsTcpListener(this, ip, port);
     
     if ((err = listener->listen()) != srs_success) {
@@ -108,7 +108,7 @@ srs_error_t SrsBufferListener::listen(string i, int p)
 
 srs_error_t SrsBufferListener::on_tcp_client(srs_netfd_t stfd)
 {
-    // ÊÕµ½TCPÁ¬½ÓÖ®ºóµ÷ÓÃ SrsServer::accept_client ½øÐÐ´¦Àí 
+    // ï¿½Õµï¿½TCPï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½ï¿½ï¿½ï¿½ SrsServer::accept_client ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ 
     srs_error_t err = server->accept_client(type, stfd);
     if (err != srs_success) {
         srs_warn("accept client failed, err is %s", srs_error_desc(err).c_str());
@@ -634,18 +634,18 @@ srs_error_t SrsServer::initialize(ISrsServerCycle* ch)
     // never subscribe handler in constructor,
     // instead, subscribe handler in initialize method.
     srs_assert(_srs_config);
-    // ×¢²áÅäÖÃÎÄ¼þÈÈ¼ÓÔØÊ±µÄ»Øµ÷´¦Àí
+    // ×¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½È¼ï¿½ï¿½ï¿½Ê±ï¿½Ä»Øµï¿½ï¿½ï¿½ï¿½ï¿½
     _srs_config->subscribe(this);
     
     handler = ch;
     if(handler && (err = handler->initialize()) != srs_success){
         return srs_error_wrap(err, "handler initialize");
     }
-    // http ÇëÇó½âÎö, ²¢µ÷ÓÃÆ¥ÅäµÄhandler
+    // http ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¥ï¿½ï¿½ï¿½handler
     if ((err = http_api_mux->initialize()) != srs_success) {
         return srs_error_wrap(err, "http api initialize");
     }
-    // Ìá¹© http flv Á÷·þÎñ, ÒÔ¼°http¾²Ì¬×ÊÔ´·þÎñ
+    // ï¿½á¹© http flv ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½Ô¼ï¿½httpï¿½ï¿½Ì¬ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½
     if ((err = http_server->initialize()) != srs_success) {
         return srs_error_wrap(err, "http server initialize");
     }
@@ -690,7 +690,7 @@ srs_error_t SrsServer::acquire_pid_file()
     srs_error_t err = srs_success;
 
     // when srs in dolphin mode, no need the pid file.
-    // ¶à½ø³ÌÄ£Ê½
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ä£Ê½
     if (_srs_config->is_dolphin()) {
         return srs_success;
     }
@@ -762,49 +762,49 @@ srs_error_t SrsServer::acquire_pid_file()
 srs_error_t SrsServer::listen()
 {
     srs_error_t err = srs_success;
-	// ¼àÌýRTMP£¬¶Ë¿ÚÐÅÏ¢ÓÉ_srs_config->get_listens()º¯Êý´ÓÅäÖÃÎÄ¼þ»ñÈ¡
-	// ´´½¨Ò»¸ö¼àÌý¶ÔÏóSrsBufferListener£¬´Ë¶ÔÏóÄÚ²¿»¹ÓÐÒ»¸öSrsTcpListener¶ÔÏó
-	// ¼àÌý¹ý³ÌÏê¼ûSrsBufferListener::listen()->SrsTcpListener::listen()
-	// Ã¿¸öSrsTcpListenerÄÚ²¿ÓÐ¸öÐ­³ÌSrsTcpListener::cycle()¸ºÔð¼àÌý
-	// ¸ÃÐ­³ÌÒÔ×èÈû·½Ê½µ÷ÓÃsrs_accept()£¬½ÓÊÕµ½ÐÂµÄ¿Í»§¶ËÁ¬½Óºó£¬µ÷ÓÃ 
+	// ï¿½ï¿½ï¿½ï¿½RTMPï¿½ï¿½ï¿½Ë¿ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½_srs_config->get_listens()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½È¡
+	// ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½SrsBufferListenerï¿½ï¿½ï¿½Ë¶ï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½SrsTcpListenerï¿½ï¿½ï¿½ï¿½
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½SrsBufferListener::listen()->SrsTcpListener::listen()
+	// Ã¿ï¿½ï¿½SrsTcpListenerï¿½Ú²ï¿½ï¿½Ð¸ï¿½Ð­ï¿½ï¿½SrsTcpListener::cycle()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	// ï¿½ï¿½Ð­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½srs_accept()ï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½ï¿½ÂµÄ¿Í»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óºó£¬µï¿½ï¿½ï¿½ 
 	// SrsBufferListener::on_tcp_client() -> SrsServer::accept_client()
-	// µ÷ÓÃSrsServer::fd_to_resource()Éú³ÉRTMPÁ¬½Ó¶ÔÏóSrsRtmpConn
-	// µ÷ÓÃSrsResourceManager::add(conn)½«SrsRtmpConnÌí¼Óµ½×ÊÔ´¹ÜÀíÆ÷
-	// µ÷ÓÃSrsRtmpConn::start()£¬Æô¶¯Ã¿¸öÁ¬½ÓµÄÐ­³ÌSrsRtmpConn::do_cycle()
+	// ï¿½ï¿½ï¿½ï¿½SrsServer::fd_to_resource()ï¿½ï¿½ï¿½ï¿½RTMPï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½SrsRtmpConn
+	// ï¿½ï¿½ï¿½ï¿½SrsResourceManager::add(conn)ï¿½ï¿½SrsRtmpConnï¿½ï¿½Óµï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	// ï¿½ï¿½ï¿½ï¿½SrsRtmpConn::start()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½Ð­ï¿½ï¿½SrsRtmpConn::do_cycle()
     if ((err = listen_rtmp()) != srs_success) {
         return srs_error_wrap(err, "rtmp listen");
     }
-    // ¼àÌýHTTP API
-	// ¶Ë¿ÚÐÅÏ¢ÓÉ_srs_config->get_http_api_listen()º¯Êý´ÓÅäÖÃÎÄ¼þ»ñÈ¡
-	// ÄÚ²¿Ò²Í¬Ñù´´½¨SrsBufferListener¶ÔÏóºÍSrsTcpListener¶ÔÏó
-	// SrsTcpListenerÄÚ²¿Ð­³ÌSrsTcpListener::cycle()¸ºÔð¼àÌý
-	// ¼àÌý¹ý³ÌÍêÈ«Ò»ÖÂ£¬Çø±ðÔÚÓÚ½ÓÊÕµ½ÐÂÁ¬½Óºó£¬
-	// µ÷ÓÃSrsServer::fd_to_resource()Éú³ÉSrsHttp(s)ApiÁ¬½Ó¶ÔÏó
+    // ï¿½ï¿½ï¿½ï¿½HTTP API
+	// ï¿½Ë¿ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½_srs_config->get_http_api_listen()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½È¡
+	// ï¿½Ú²ï¿½Ò²Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½SrsBufferListenerï¿½ï¿½ï¿½ï¿½ï¿½SrsTcpListenerï¿½ï¿½ï¿½ï¿½
+	// SrsTcpListenerï¿½Ú²ï¿½Ð­ï¿½ï¿½SrsTcpListener::cycle()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«Ò»ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óºï¿½
+	// ï¿½ï¿½ï¿½ï¿½SrsServer::fd_to_resource()ï¿½ï¿½ï¿½ï¿½SrsHttp(s)Apiï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½
     if ((err = listen_http_api()) != srs_success) {
         return srs_error_wrap(err, "http api listen");
     }
-    // ¼àÌýHTTPS API
+    // ï¿½ï¿½ï¿½ï¿½HTTPS API
     if ((err = listen_https_api()) != srs_success) {
         return srs_error_wrap(err, "https api listen");
     }
-    // ¼àÌýHTTP
-	// ÄÚ²¿´´½¨¼àÌý¶ÔÏóSrsBufferListener£¬¼àÌý¹ý³ÌÍêÈ«Ò»ÖÂ£¬Çø±ðÔÚÓÚ½ÓÊÕµ½ÐÂÁ¬½Óºó£¬
-	// µ÷ÓÃSrsServer::fd_to_resource()Éú³ÉSrsResponseOnlyHttpConnÁ¬½Ó¶ÔÏó
+    // ï¿½ï¿½ï¿½ï¿½HTTP
+	// ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½SrsBufferListenerï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«Ò»ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óºï¿½
+	// ï¿½ï¿½ï¿½ï¿½SrsServer::fd_to_resource()ï¿½ï¿½ï¿½ï¿½SrsResponseOnlyHttpConnï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½
     if ((err = listen_http_stream()) != srs_success) {
         return srs_error_wrap(err, "http stream listen");
     }
-    // ¼àÌýHTTPS
+    // ï¿½ï¿½ï¿½ï¿½HTTPS
     if ((err = listen_https_stream()) != srs_success) {
         return srs_error_wrap(err, "https stream listen");
     }
-	// ¸ù¾ÝÅäÖÃ£¬ÄÚ²¿´´½¨SrsUdpCasterListener¼àÌý¶ÔÏó
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½SrsUdpCasterListenerï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	// SrsUdpCasterListener / SrsHttpFlvListener / SrsGb28181Manger
-	// ÕâÒ»¿éºÍRTMP±¾Éí¹ØÏµ²»´ó£¬ÊôÓÚ¼æÈÝ¶àÖÖÁ÷Ã½ÌåÐ­Òé£¬ÒÔºóÔÙµ¥¶À·ÖÎö
+	// ï¿½ï¿½Ò»ï¿½ï¿½ï¿½RTMPï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¼ï¿½ï¿½Ý¶ï¿½ï¿½ï¿½ï¿½ï¿½Ã½ï¿½ï¿½Ð­ï¿½é£¬ï¿½Ôºï¿½ï¿½Ùµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if ((err = listen_stream_caster()) != srs_success) {
         return srs_error_wrap(err, "stream caster listen");
     }
-	// Æô¶¯Á¬½Ó×ÊÔ´¹ÜÀíÆ÷SrsResourceManager¶ÔÓ¦µÄÐ­³Ì
-	// ´ËÐ­³ÌÄÚ²¿Â·¾¶±È½Ï¼òµ¥£¬¾ÍÊÇµÈ´ýÌõ¼þ±äÁ¿»½ÐÑ£¬È»ºóÇå³ý½©Ê¬Á¬½Ó
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½SrsResourceManagerï¿½ï¿½Ó¦ï¿½ï¿½Ð­ï¿½ï¿½
+	// ï¿½ï¿½Ð­ï¿½ï¿½ï¿½Ú²ï¿½Â·ï¿½ï¿½ï¿½È½Ï¼òµ¥£ï¿½ï¿½ï¿½ï¿½ÇµÈ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ£ï¿½È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¬ï¿½ï¿½ï¿½ï¿½
     if ((err = conn_manager->start()) != srs_success) {
         return srs_error_wrap(err, "connection manager");
     }
@@ -1198,21 +1198,21 @@ srs_error_t SrsServer::listen_rtmp()
     srs_error_t err = srs_success;
     
     // stream service port.
-    // Òª¼àÌýµÄ·þÎñ¶Ë¿Ú£¬¿ÉÄÜÊÇ¶à¸ö¶Ë¿Ú
+    // Òªï¿½ï¿½ï¿½ï¿½ï¿½Ä·ï¿½ï¿½ï¿½Ë¿Ú£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½ï¿½ï¿½Ë¿ï¿½
     std::vector<std::string> ip_ports = _srs_config->get_listens();
     srs_assert((int)ip_ports.size() > 0);
-    // ¹Ø±ÕÖ¸¶¨ÀàÐÍµÄ¶Ë¿Ú¼àÌý£¬¿ªÊ¼ÐÂµÄ¼àÌý
+    // ï¿½Ø±ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ÍµÄ¶Ë¿Ú¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ÂµÄ¼ï¿½ï¿½ï¿½
     close_listeners(SrsListenerRtmpStream);
-    // ±éÀú¶Ë¿Ú£¬Öð¸ö¼àÌý
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ë¿Ú£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     for (int i = 0; i < (int)ip_ports.size(); i++) {
-        // ´´½¨Ò»¸ö¼àÌý¶ÔÏó
+        // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         SrsListener* listener = new SrsBufferListener(this, SrsListenerRtmpStream);
         listeners.push_back(listener);
 
         int port; string ip;
-        // ½âÎö³öIPºÍport
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½IPï¿½ï¿½port
         srs_parse_endpoint(ip_ports[i], ip, port);
-        // ¼àÌý
+        // ï¿½ï¿½ï¿½ï¿½
         if ((err = listener->listen(ip, port)) != srs_success) {
             srs_error_wrap(err, "rtmp listen %s:%d", ip.c_str(), port);
         }
@@ -1397,8 +1397,8 @@ srs_error_t SrsServer::accept_client(SrsListenerType type, srs_netfd_t stfd)
     srs_error_t err = srs_success;
     
     ISrsStartableConneciton* conn = NULL;
-	// µ÷ÓÃSrsServer::fd_to_resource()£¬¸ù¾ÝSrsListenerType²ÎÊý£¬Éú³É²»Í¬µÄÁ¬½Ó¶ÔÏó
-	// SrsRtmpConn¡¢SrsHttpApi¡¢SrsResponseOnlyHttpConn
+	// ï¿½ï¿½ï¿½ï¿½SrsServer::fd_to_resource()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½SrsListenerTypeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É²ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½
+	// SrsRtmpConnï¿½ï¿½SrsHttpApiï¿½ï¿½SrsResponseOnlyHttpConn
     if ((err = fd_to_resource(type, stfd, &conn)) != srs_success) {
         if (srs_error_code(err) == ERROR_SOCKET_GET_PEER_IP && _srs_config->empty_ip_ok()) {
             srs_close_stfd(stfd); srs_error_reset(err);
@@ -1410,9 +1410,9 @@ srs_error_t SrsServer::accept_client(SrsListenerType type, srs_netfd_t stfd)
     
     // directly enqueue, the cycle thread will remove the client.
     conn_manager->add(conn);
-	// Æô¶¯Á¬½Ó¶ÔÏóconnÄÚ²¿µÄÐ­³Ì
-	// 1£©SrsRtmpConn¶ÔÏóÆô¶¯µÄÐ­³ÌÊÇSrsRtmpConn::do_cycle()
-	// 2£©SrsHttpApi¡¢SrsResponseOnlyHttpConnÁ¬½Ó¶ÔÏóÄÚ²¿ÓÖÓÐÒ»¸öSrsHttpConn¶ÔÏó£¬ ËùÒÔ×îÖÕÆô¶¯µÄÐ­³ÌÊÇSrsHttpConn::do_cycle()
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½connï¿½Ú²ï¿½ï¿½ï¿½Ð­ï¿½ï¿½
+	// 1ï¿½ï¿½SrsRtmpConnï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð­ï¿½ï¿½ï¿½ï¿½SrsRtmpConn::do_cycle()
+	// 2ï¿½ï¿½SrsHttpApiï¿½ï¿½SrsResponseOnlyHttpConnï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½SrsHttpConnï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð­ï¿½ï¿½ï¿½ï¿½SrsHttpConn::do_cycle()
     if ((err = conn->start()) != srs_success) {
         return srs_error_wrap(err, "start conn coroutine");
     }
@@ -1428,7 +1428,7 @@ SrsHttpServeMux* SrsServer::api_server()
 srs_error_t SrsServer::fd_to_resource(SrsListenerType type, srs_netfd_t stfd, ISrsStartableConneciton** pr)
 {
     srs_error_t err = srs_success;
-    // »ñÈ¡²Ù×÷ÏµÍ³µÄsocketÎÄ¼þÃèÊö·û
+    // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ÏµÍ³ï¿½ï¿½socketï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     int fd = srs_netfd_fileno(stfd);
     string ip = srs_get_peer_ip(fd);
     int port = srs_get_peer_port(fd);
@@ -1441,6 +1441,7 @@ srs_error_t SrsServer::fd_to_resource(SrsListenerType type, srs_netfd_t stfd, IS
     }
     
     // check connection limitation.
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ rtmp http ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½
     int max_connections = _srs_config->get_max_connections();
     if (handler && (err = handler->on_accept_client(max_connections, (int)conn_manager->size())) != srs_success) {
         return srs_error_wrap(err, "drop client fd=%d, ip=%s:%d, max=%d, cur=%d for err: %s",
@@ -1653,17 +1654,19 @@ srs_error_t SrsServerAdapter::initialize()
     srs_error_t err = srs_success;
     return err;
 }
-
+/*
+åˆå§‹åŒ–æ•´ä¸ªç³»ç»Ÿ
+*/
 srs_error_t SrsServerAdapter::run(SrsWaitGroup* wg)
 {
     srs_error_t err = srs_success;
 
     // Initialize the whole system, set hooks to handle server level events.
-	// ´Ëº¯ÊýÄÚ²¿Ö÷ÒªÊÇµ÷ÓÃ SrsHttpServeMux ºÍ SrsHttpServer ¶ÔÏóµÄ³õÊ¼»¯
-	// SrsHttpServeMux ¸ºÔð HTTP API µÄ×¢²áºÍ´¦Àí
-	// SrsHttpServer ÄÚ²¿°üÀ¨ SrsHttpStaticServer ºÍ SrsHttpStreamServer ¶ÔÏó
-	// SrsHttpStaticServer Ìá¹©¾²Ì¬ÎÄ¼þµÄ¶ÁÈ¡·þÎñ
-	// SrsHttpStreamServer Ìá¹© http FLV/TS/MP3/AAC Á÷Êý¾Ý·þÎñ
+    // æ­¤å‡½æ•°å†…éƒ¨ä¸»è¦æ˜¯è°ƒç”¨ SrsHttpServeMux å’Œ SrsHttpServer å¯¹è±¡çš„åˆå§‹åŒ–
+    // SrsHttpServeMux è´Ÿè´£ HTTP API çš„æ³¨å†Œå’Œå¤„ç†
+    // SrsHttpServer å†…éƒ¨åŒ…æ‹¬ SrsHttpStaticServer å’Œ SrsHttpStreamServer å¯¹è±¡
+    // SrsHttpStaticServer æä¾›é™æ€æ–‡ä»¶çš„è¯»å–æœåŠ¡
+    // SrsHttpStreamServer æä¾› http FLV/TS/MP3/AAC æµæ•°æ®æœåŠ¡
     if ((err = srs->initialize(NULL)) != srs_success) {
         return srs_error_wrap(err, "server initialize");
     }
@@ -1671,40 +1674,40 @@ srs_error_t SrsServerAdapter::run(SrsWaitGroup* wg)
     if ((err = srs->initialize_st()) != srs_success) {
         return srs_error_wrap(err, "initialize st");
     }
-    // pidÎÄ¼þÓÃÓÚ·ÀÖ¹SRS·þÎñ½ø³Ì±»¶à´ÎÖØ¸´Æô¶¯£¬Ö»ÓÐ»ñµÃÌØ¶¨pidÎÄ¼þ(¹Ì¶¨Â·¾¶ºÍÎÄ¼þÃû)µÄÐ´ÈëÈ¨ÏÞ(¶ÀÕ¼ÐÔÐ´ÎÄ¼þËøF_WRLCK)µÄ½ø³Ì²ÅÄÜÕý³£Æô¶¯
-    // ²¢½«×ÔÉíµÄ½ø³ÌPIDÐ´Èë¸ÃÎÄ¼þ£¬ÆäËüÍ¬Ò»³ÌÐòµÄ¶àÓà½ø³ÌÔò×Ô¶¯ÍË³ö
+    // pidæ–‡ä»¶ç”¨äºŽé˜²æ­¢SRSæœåŠ¡è¿›ç¨‹è¢«å¤šæ¬¡é‡å¤å¯åŠ¨ï¼Œåªæœ‰èŽ·å¾—ç‰¹å®špidæ–‡ä»¶(å›ºå®šè·¯å¾„å’Œæ–‡ä»¶å)çš„å†™å…¥æƒé™(ç‹¬å æ€§å†™æ–‡ä»¶é”F_WRLCK)çš„è¿›ç¨‹æ‰èƒ½æ­£å¸¸å¯åŠ¨
+    // å¹¶å°†è‡ªèº«çš„è¿›ç¨‹PIDå†™å…¥è¯¥æ–‡ä»¶ï¼Œå…¶å®ƒåŒä¸€ç¨‹åºçš„å¤šä½™è¿›ç¨‹åˆ™è‡ªåŠ¨é€€å‡º
     if ((err = srs->acquire_pid_file()) != srs_success) {
         return srs_error_wrap(err, "acquire pid file");
     }
-    // ÄÚ²¿µ÷ÓÃpipe()º¯Êý´´½¨¶ÁÐ´¹ÜµÀ£¬´Ë¹ÜµÀÓÃÓÚ´«µÝÐÅºÅ(signal)
-    // ÒÔ¼°´´½¨°æ±¾ÐÅÏ¢µÄÐ­³Ì
+    // å†…éƒ¨è°ƒç”¨pipe()å‡½æ•°åˆ›å»ºè¯»å†™ç®¡é“ï¼Œæ­¤ç®¡é“ç”¨äºŽä¼ é€’ä¿¡å·(signal)
+    // ä»¥åŠåˆ›å»ºç‰ˆæœ¬ä¿¡æ¯çš„åç¨‹
     if ((err = srs->initialize_signal()) != srs_success) {
         return srs_error_wrap(err, "initialize signal");
     }
-    // ¡ï¡ï¡ï ¼àÌý rtmp/http api/http streamµÄÇëÇó ¡ï¡ï¡ï
+    // â˜…â˜…â˜… ç›‘å¬ rtmp/http api/http streamçš„è¯·æ±‚ â˜…â˜…â˜…
     if ((err = srs->listen()) != srs_success) {
         return srs_error_wrap(err, "listen");
     }
-    // ´Ëº¯ÊýÄÚ²¿Ê¹ÓÃsigemptysetºÍsigaction×¢²áÐÅºÅ´¦Àíº¯Êýsig_catcher()
-    // ÐÅºÅ´¦Àíº¯Êýsig_catcher()ÄÚ²¿ÔÚ½ÓÊÕµ½ÏµÍ³signalÊ±£¬½«signalÐ´ÈëÇ°Ãæ´´½¨µÄpipe¹ÜµÀ
+    // æ­¤å‡½æ•°å†…éƒ¨ä½¿ç”¨sigemptysetå’Œsigactionæ³¨å†Œä¿¡å·å¤„ç†å‡½æ•°sig_catcher()
+    // ä¿¡å·å¤„ç†å‡½æ•°sig_catcher()å†…éƒ¨åœ¨æŽ¥æ”¶åˆ°ç³»ç»Ÿsignalæ—¶ï¼Œå°†signalå†™å…¥å‰é¢åˆ›å»ºçš„pipeç®¡é“
     if ((err = srs->register_signal()) != srs_success) {
         return srs_error_wrap(err, "register signal");
     }
-    // ´Ëº¯ÊýÄÚ²¿£¬½«×Ö·û´®ÐÎÊ½µÄHTTP APIºÍ¶ÔÓ¦µÄ´¦Àíº¯Êý×¢²áµ½SrsHttpServeMux¶ÔÏóÄÚ£¬
-    // ºóÐø£¬µ±SrsHttpServeMuxÊÕµ½Ä³¸öAPIÇëÇóºó£¬Ôòµ÷ÓÃ¶ÔÓ¦µÄ´¦Àíº¯Êý
+    // æ­¤å‡½æ•°å†…éƒ¨ï¼Œå°†å­—ç¬¦ä¸²å½¢å¼çš„HTTP APIå’Œå¯¹åº”çš„å¤„ç†å‡½æ•°æ³¨å†Œåˆ°SrsHttpServeMuxå¯¹è±¡å†…ï¼Œ
+    // åŽç»­ï¼Œå½“SrsHttpServeMuxæ”¶åˆ°æŸä¸ªAPIè¯·æ±‚åŽï¼Œåˆ™è°ƒç”¨å¯¹åº”çš„å¤„ç†å‡½æ•°
     if ((err = srs->http_handle()) != srs_success) {
         return srs_error_wrap(err, "http handle");
     }
-    // Æô¶¯À­È¡·þÎñSrsIngester¶ÔÏóµÄÄÚ²¿¹¤×÷Ð­³Ì£¬ÓÃÓÚ´ÓÎÄ¼þ¡¢Á÷¡¢Éè±¸ÖÐÀ­È¡ÒôÊÓÆµÁ÷
+    // å¯åŠ¨æ‹‰å–æœåŠ¡SrsIngesterå¯¹è±¡çš„å†…éƒ¨å·¥ä½œåç¨‹ï¼Œç”¨äºŽä»Žæ–‡ä»¶ã€æµã€è®¾å¤‡ä¸­æ‹‰å–éŸ³è§†é¢‘æµ
     if ((err = srs->ingest()) != srs_success) {
         return srs_error_wrap(err, "ingest");
     }
-    // ÕâÀïµÄ¹¤×÷°üÀ¨:
-    // 1)³õÊ¼»¯SrsLiveSourceManager¶ÔÏó£¬SrsLiveSourceManagerÖ÷Òª¹¤×÷ÊÇÍ¨¹ýÖÜÆÚÐÔÂÖÑ¯¼ì²â
-    //     ¶¨Ê±ÇåÀí³¤ÆÚÃ»ÓÐÓÐÐ§Êý¾ÝSrsLiveSource¶ÔÏó
-    // 2)Æô¶¯SrsServerµÄÄÚ²¿Ð­³Ì£¬´ËÐ­³ÌµÄÖ÷Òª¹¤×÷ÊÇÂÖÑ¯ÐÅºÅ±êÖ¾£¬ÖØÐÂ¼ÓÔØÐÂÅäÖÃÎÄ¼þ
-    // 3)µ÷ÓÃSrsServer::setup_ticks()´´½¨SrsServerÄÚ²¿ÖÜÆÚ¶¨Ê±Æ÷¡¢×¢²á¶¨Ê±Æ÷ÊÂ¼þ²¢Æô¶¯¶¨Ê±Æ÷Ð­³Ì
-    //     ÔÚº¯ÊýSrsServer::notify()ÄÚ²¿£¬Ö´ÐÐÉÏÊöÖÜÆÚ¶¨Ê±Æ÷µÄ³¬Ê±´¦Àí
+    // è¿™é‡Œçš„å·¥ä½œåŒ…æ‹¬:
+    // 1)åˆå§‹åŒ–SrsLiveSourceManagerå¯¹è±¡ï¼ŒSrsLiveSourceManagerä¸»è¦å·¥ä½œæ˜¯é€šè¿‡å‘¨æœŸæ€§è½®è¯¢æ£€æµ‹
+    //     å®šæ—¶æ¸…ç†é•¿æœŸæ²¡æœ‰æœ‰æ•ˆæ•°æ®SrsLiveSourceå¯¹è±¡
+    // 2)å¯åŠ¨SrsServerçš„å†…éƒ¨åç¨‹ï¼Œæ­¤åç¨‹çš„ä¸»è¦å·¥ä½œæ˜¯è½®è¯¢ä¿¡å·æ ‡å¿—ï¼Œé‡æ–°åŠ è½½æ–°é…ç½®æ–‡ä»¶
+    // 3)è°ƒç”¨SrsServer::setup_ticks()åˆ›å»ºSrsServerå†…éƒ¨å‘¨æœŸå®šæ—¶å™¨ã€æ³¨å†Œå®šæ—¶å™¨äº‹ä»¶å¹¶å¯åŠ¨å®šæ—¶å™¨åç¨‹
+    //     åœ¨å‡½æ•°SrsServer::notify()å†…éƒ¨ï¼Œæ‰§è¡Œä¸Šè¿°å‘¨æœŸå®šæ—¶å™¨çš„è¶…æ—¶å¤„ç†
     if ((err = srs->start(wg)) != srs_success) {
         return srs_error_wrap(err, "start");
     }

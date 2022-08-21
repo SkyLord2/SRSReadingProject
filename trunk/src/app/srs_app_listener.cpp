@@ -218,7 +218,7 @@ SrsTcpListener::SrsTcpListener(ISrsTcpHandler* h, string i, int p)
     port = p;
 
     lfd = NULL;
-    // �յĶ���û���κβ�����
+    // �յĶ���û���κβ�����
     trd = new SrsDummyCoroutine();
 }
 
@@ -232,7 +232,9 @@ int SrsTcpListener::fd()
 {
     return srs_netfd_fileno(lfd);;
 }
-
+/*
+启动TCP listener, 创建并启动协程进行监听
+*/
 srs_error_t SrsTcpListener::listen()
 {
     srs_error_t err = srs_success;
@@ -267,7 +269,7 @@ srs_error_t SrsTcpListener::cycle()
         if ((err = srs_fd_closeexec(srs_netfd_fileno(fd))) != srs_success) {
             return srs_error_wrap(err, "set closeexec");
         }
-        // SrsBufferListener::on_tcp_client
+        // 回调 SrsBufferListener::on_tcp_client
         if ((err = handler->on_tcp_client(fd)) != srs_success) {
             return srs_error_wrap(err, "handle fd=%d", srs_netfd_fileno(fd));
         }
