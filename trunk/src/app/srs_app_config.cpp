@@ -2471,7 +2471,7 @@ srs_error_t SrsConfig::check_normal_config()
             && n != "grace_start_wait" && n != "empty_ip_ok" && n != "disable_daemon_for_docker"
             && n != "inotify_auto_reload" && n != "auto_reload_for_docker" && n != "tcmalloc_release_rate"
             && n != "query_latest_version"
-            && n != "circuit_breaker" && n != "is_full" && n != "in_docker"
+            && n != "circuit_breaker" && n != "is_full" && n != "in_docker" && n != "object_detection"
             ) {
             return srs_error_new(ERROR_SYSTEM_CONFIG_INVALID, "illegal directive %s", n.c_str());
         }
