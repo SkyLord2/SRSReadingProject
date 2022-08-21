@@ -497,6 +497,11 @@ public:
     bool get_rtc_nack_no_copy(std::string vhost);
     bool get_rtc_twcc_enabled(std::string vhost);
 
+// od section
+public:
+    virtual bool get_object_detection_enabled();
+    virtual bool get_object_detection_enabled(SrsConfDirective* conf);
+
 // vhost specified section
 public:
     // Get the vhost directive by vhost name.

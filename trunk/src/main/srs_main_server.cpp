@@ -67,27 +67,27 @@ SrsServer* _srs_server = NULL;
 
 /**
  * main entrance.
- * Ö÷Èë¿Ú´¦Àíº¯Êý
+ * ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½
  */
 srs_error_t do_main(int argc, char** argv)
 {
     srs_error_t err = srs_success;
 
     // Initialize global or thread-local variables.
-    // ³õÊ¼»¯Ð­³ÌÏà¹ØµÄ¹¦ÄÜ
-    // ´Ëº¯ÊýÄÚ²¿´´½¨_srs_log¡¢_srs_context¡¢_srs_configÈ«¾Ö¶ÔÏó
-    // ²¢µ÷ÓÃStateThreads¿âµÄ³õÊ¼»¯º¯Êý£¬´´½¨IdleÐ­³Ì£¨¸ºÔðepollºÍÂÖÑ¯¶¨Ê±Æ÷£©
-    // ´´½¨È«¾Ö¹ÜÀí¶ÔÏóSrsHybridServer¡¢SrsLiveSourceManager¡¢SrsRtcSourceManager¡¢SrsResourceManager
+    // ï¿½ï¿½Ê¼ï¿½ï¿½Ð­ï¿½ï¿½ï¿½ï¿½ØµÄ¹ï¿½ï¿½ï¿½
+    // ï¿½Ëºï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½_srs_logï¿½ï¿½_srs_contextï¿½ï¿½_srs_configÈ«ï¿½Ö¶ï¿½ï¿½ï¿½
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½StateThreadsï¿½ï¿½Ä³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½IdleÐ­ï¿½Ì£ï¿½ï¿½ï¿½ï¿½ï¿½epollï¿½ï¿½ï¿½ï¿½Ñ¯ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
+    // ï¿½ï¿½ï¿½ï¿½È«ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½SrsHybridServerï¿½ï¿½SrsLiveSourceManagerï¿½ï¿½SrsRtcSourceManagerï¿½ï¿½SrsResourceManager
     if ((err = srs_thread_initialize()) != srs_success) {
         return srs_error_wrap(err, "thread init");
     }
 
     // For background context id.
-    // Éú³ÉÒ»¸öËæ»ú×Ö·û´®£¬ÉèÖÃÖ÷Ð­³ÌµÄid
+    // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð­ï¿½Ìµï¿½id
     _srs_context->set_id(_srs_context->generate_id());
 
     // TODO: support both little and big endian.
-    // ÊÇ·ñÎªÐ¡¶ËÄ£Ê½
+    // ï¿½Ç·ï¿½ÎªÐ¡ï¿½ï¿½Ä£Ê½
     srs_assert(srs_is_little_endian());
     
     // for gperf gmp or gcp,
@@ -105,21 +105,24 @@ srs_error_t do_main(int argc, char** argv)
 #endif
 
     // Ignore any error while detecting docker.
-    // ¼ì²âÊÇ·ñÔÚdocker»·¾³, _srs_in_docker = true or false
+    // ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½dockerï¿½ï¿½ï¿½ï¿½, _srs_in_docker = true or false
     if ((err = srs_detect_docker()) != srs_success) {
         srs_error_reset(err);
     }
     
     // never use srs log(srs_trace, srs_error, etc) before config parse the option,
     // which will load the log config and apply it.
-    // ½âÎöÅäÖÃÎÄ¼þ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
     if ((err = _srs_config->parse_options(argc, argv)) != srs_success) {
         return srs_error_wrap(err, "config parse options");
     }
-    
+
+    if (_srs_config->get_object_detection_enabled()) {
+        srs_trace("object detection is enabled");
+    }
     // change the work dir and set cwd.
     int r0 = 0;
-    // »ñÈ¡¹¤×÷Ä¿Â¼
+    // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ä¿Â¼
     string cwd = _srs_config->get_work_dir();
     if (!cwd.empty() && cwd != "./" && (r0 = chdir(cwd.c_str())) == -1) {
         return srs_error_new(-1, "chdir to %s, r0=%d", cwd.c_str(), r0);
@@ -129,7 +132,7 @@ srs_error_t do_main(int argc, char** argv)
     }
     
     // config parsed, initialize log.
-    // ÅäÖÃ½âÎöÍê±Ï£¬³õÊ¼»¯ÈÕÖ¾
+    // ï¿½ï¿½ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ö¾
     if ((err = _srs_log->initialize()) != srs_success) {
         return srs_error_wrap(err, "log initialize");
     }
@@ -150,18 +153,18 @@ srs_error_t do_main(int argc, char** argv)
         stringstream ss;
         
 #ifdef SRS_PERF_GLIBC_MEMORY_CHECK
-        // ¶ÁÈ¡²¢ÉèÖÃ»·¾³±äÁ¿
+        // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         // ensure glibc write error to stderr.
-        // ÉèÖÃLIBC_FATAL_STDERR_=1, ¿ÉÒÔ½«ÕâÐ©ÄÚ´æ´íÎóÐÅÏ¢Êä³öµ½stderr
+        // ï¿½ï¿½ï¿½ï¿½LIBC_FATAL_STDERR_=1, ï¿½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½Ð©ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½stderr
         string lfsov = srs_getenv("LIBC_FATAL_STDERR_");
         setenv("LIBC_FATAL_STDERR_", "1", 1);
         string lfsnv = srs_getenv("LIBC_FATAL_STDERR_");
         //
         // ensure glibc to do alloc check.
-        // LinuxÏÂÌá¹©µÄMALLOC_CHECK¿ÉÒÔ¼ì²âmallocºÍfreeµÄÎÊÌâ£¬GNU C Library ¿ÉÒÔ¸ù¾Ý»·¾³±äÁ¿MALLOC_CHECK_À´¾ö¶¨ÊÇ·ñÔÚÔËÐÐÊ±¿É¼ì²â³ÌÐòÖÐµÄÄÚ´æÎÊÌâ¡£¶øÄÚ´æÎÊÌâÓÐÊ±ºò±íÏÖµÃ·Ç³£¹Å¹Ö£¬±ÈÈçrandom crash, crashµÄµãÓÖ¾­³£±ä£¬ÉõÖÁcoredumpÖÐÒ²Ã»Ê²Ã´Õ»ÐÅÏ¢¡£ÕâÊ±ºò¿ÉÒÔÓÃÕâ¸ö·½·¨À´ÑéÖ¤Ò»ÏÂ¡£Ö»ÊÇ»¹Ã»°ì·¨´òÓ¡³ö´íµã¶ÔÓ¦µÄµØÖ·£¬ÓÐÐ©ÒÅº¶¡£
-        // MALLOC_CHECK_ = 0, ºÍÃ»ÉèÖÃÒ»Ñù£¬½«ºöÂÔÕâÐ©´íÎó
-        // MALLOC_CHECK_ = 1, ½«´òÓ¡Ò»¸ö´íÎó¸æ¾¯
-        // MALLOC_CHECK_ = 2, ³ÌÐò½«ÊÕµ½SIGABRTÐÅºÅÍË³ö
+        // Linuxï¿½ï¿½ï¿½á¹©ï¿½ï¿½MALLOC_CHECKï¿½ï¿½ï¿½Ô¼ï¿½ï¿½mallocï¿½ï¿½freeï¿½ï¿½ï¿½ï¿½ï¿½â£¬GNU C Library ï¿½ï¿½ï¿½Ô¸ï¿½ï¿½Ý»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½MALLOC_CHECK_ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½É¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½â¡£ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ÖµÃ·Ç³ï¿½ï¿½Å¹Ö£ï¿½ï¿½ï¿½ï¿½ï¿½random crash, crashï¿½Äµï¿½ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½ä£¬ï¿½ï¿½ï¿½ï¿½coredumpï¿½ï¿½Ò²Ã»Ê²Ã´Õ»ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤Ò»ï¿½Â¡ï¿½Ö»ï¿½Ç»ï¿½Ã»ï¿½ì·¨ï¿½ï¿½Ó¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Äµï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ð©ï¿½Åºï¿½ï¿½ï¿½
+        // MALLOC_CHECK_ = 0, ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð©ï¿½ï¿½ï¿½ï¿½
+        // MALLOC_CHECK_ = 1, ï¿½ï¿½ï¿½ï¿½Ó¡Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ¾¯
+        // MALLOC_CHECK_ = 2, ï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½SIGABRTï¿½Åºï¿½ï¿½Ë³ï¿½
         string mcov = srs_getenv("MALLOC_CHECK_");
         setenv("MALLOC_CHECK_", "1", 1);
         string mcnv = srs_getenv("MALLOC_CHECK_");
@@ -169,11 +172,11 @@ srs_error_t do_main(int argc, char** argv)
 #endif
         
 #ifdef SRS_GPERF_MC
-        // tcmallocÊÇÒ»¸öÀàËÆÓÚmallocµÄÄÚ´æ·ÖÅä¿â£¬µ«Í¬Ê±Ìá¹©ÁËÄÚ´æÐ¹Â¶£¬ÄÚ´æÔ½½çÒÔ¼°Ò°Ö¸Õë¼ì²âÓëÄÚ´æ·ÖÎöµÄ¹¦ÄÜ
-        // ÉèÖÃ»·¾³±äÁ¿HEAPCHECK=normal/strict/draconian,¶ÔÕû¸ö³ÌÐò½øÐÐ¼ì²é
-        // ¶Ô²¿·Ö´úÂë½øÐÐ¼ì²é£º
+        // tcmallocï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mallocï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½â£¬ï¿½ï¿½Í¬Ê±ï¿½á¹©ï¿½ï¿½ï¿½Ú´ï¿½Ð¹Â¶ï¿½ï¿½ï¿½Ú´ï¿½Ô½ï¿½ï¿½ï¿½Ô¼ï¿½Ò°Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½Ä¹ï¿½ï¿½ï¿½
+        // ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½HEAPCHECK=normal/strict/draconian,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½
+        // ï¿½Ô²ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½é£º
         // HeapProfileLeakChecker checker("foo");
-        // foo();    //´ý¼ì²é²¿·Ö
+        // foo();    //ï¿½ï¿½ï¿½ï¿½é²¿ï¿½ï¿½
 
         assert(checker.NoLeaks());
         string hcov = srs_getenv("HEAPCHECK");
@@ -186,8 +189,8 @@ srs_error_t do_main(int argc, char** argv)
 #endif
         
 #ifdef SRS_GPERF_MD
-        // ´ò¿ªÄÚ´æÔ½½ç¼ì²é£¬ÔÚ·ÖÅäÊ±·ÖÅäµ½Ò³µÄµ×²¿£¬ÕâÑùÔ½½çÊ±¾Í»á±¨´íÁË¡£Ò²¾ÍÊÇPAGE_FENCE
-        // ¾ÖÏÞÊÇÖ»ÄÜ¶Ôheap×öÔ½½ç¶ÁÐ´µÄ¼ì²é
+        // ï¿½ï¿½ï¿½Ú´ï¿½Ô½ï¿½ï¿½ï¿½é£¬ï¿½Ú·ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½äµ½Ò³ï¿½Äµ×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½Ê±ï¿½Í»á±¨ï¿½ï¿½ï¿½Ë¡ï¿½Ò²ï¿½ï¿½ï¿½ï¿½PAGE_FENCE
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½Ü¶ï¿½heapï¿½ï¿½Ô½ï¿½ï¿½ï¿½Ð´ï¿½Ä¼ï¿½ï¿½
         char* TCMALLOC_PAGE_FENCE = getenv("TCMALLOC_PAGE_FENCE");
         if (!TCMALLOC_PAGE_FENCE || strcmp(TCMALLOC_PAGE_FENCE, "1")) {
             srs_warn("gmd enabled without env TCMALLOC_PAGE_FENCE=1");
@@ -203,13 +206,13 @@ srs_error_t do_main(int argc, char** argv)
     }
     
     // we check the config when the log initialized.
-    // ¼ì²éÅäÖÃÎÄ¼þÊÇ·ñÕýÈ·£¬¼ì²éÃüÁîÊÇ·ñºÏ·¨£¬¼ì²éÏµÍ³µÄ×î´óÁ¬½ÓÏÞÖÆ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ç·ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Ï·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if ((err = _srs_config->check_config()) != srs_success) {
         return srs_error_wrap(err, "check config");
     }
     
     // features
-    // ´òÓ¡µ±Ç°²ÉÓÃµÄÅäÖÃ
+    // ï¿½ï¿½Ó¡ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½
     show_macro_features();
 
 #ifdef SRS_GPERF
@@ -221,7 +224,7 @@ srs_error_t do_main(int argc, char** argv)
         srs_trace("tcmalloc: set release-rate %.2f=>%.2f", otrr, trr);
     }
 #endif
-    // ´Ëº¯ÊýÄÚ²¿ÅÐ¶ÏÊÇ·ñÐèÒªÒÔºóÌ¨Ä£Ê½ÔËÐÐ£¬²¢Æô¶¯È«²¿·þÎñ
+    // ï¿½Ëºï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½Ôºï¿½Ì¨Ä£Ê½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if ((err = run_directly_or_daemon()) != srs_success) {
         return srs_error_wrap(err, "run");
     }
@@ -253,7 +256,7 @@ void show_macro_features()
         ss << "features";
         
         // rch(rtmp complex handshake)
-        // ÎÕÊÖ
+        // ï¿½ï¿½ï¿½ï¿½
         ss << ", rch:" << srs_bool2switch(true);
         ss << ", dash:" << "on";
         ss << ", hls:" << srs_bool2switch(true);
@@ -311,9 +314,9 @@ void show_macro_features()
         stringstream ss;
         
         // mw(merged-write)
-        // ·þÎñ¶ËÎªÁËÌá¹©Ð§ÂÊ£¬Ò²»á½øÐÐmerged-write,Ò²¾ÍÊÇÒ»´Î·¢ËÍ¼¸ºÁÃëµÄÊý¾Ýµ½¿Í»§¶Ë£¬
-        // Õâ¸öÍ¬ÑùÒ²»áµ¼ÖÂÑÓ³Ù¡£ºÃ´¦ÊÇ¿ÉÒÔÖ§³ÖµÄ¿Í»§¶Ë»á±ä¶à¡£
-        // ËùÒÔÔÚµÍÑÓ³ÙµÄ³¡¾°ÖÐÎÒÃÇÐèÒª¸ù¾ÝÒªÇó½øÐÐÈ¨ºâ£¬½«Õâ¸öÉèÖÃµ½½ÏÐ¡µÄÖµ¡£
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½á¹©Ð§ï¿½Ê£ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½merged-write,Ò²ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Î·ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½Í»ï¿½ï¿½Ë£ï¿½
+        // ï¿½ï¿½ï¿½Í¬ï¿½ï¿½Ò²ï¿½áµ¼ï¿½ï¿½ï¿½Ó³Ù¡ï¿½ï¿½Ã´ï¿½ï¿½Ç¿ï¿½ï¿½ï¿½Ö§ï¿½ÖµÄ¿Í»ï¿½ï¿½Ë»ï¿½ï¿½à¡£
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½ï¿½Ó³ÙµÄ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½â£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ð¡ï¿½ï¿½Öµï¿½ï¿½
         ss << "mw sleep:" << srsu2msi(SRS_PERF_MW_SLEEP) << "ms";
         
         // mr(merged-read)
@@ -332,7 +335,7 @@ void show_macro_features()
         stringstream ss;
         
         // gc(gop-cache)
-        // ÎªÁË¼õ·ÊµÍÑÓ³Ù£¬·þÎñ¶Ë¿ÉÒÔ¹Ø±ÕGOP»º´æ£¬²»»º´æÇ°Ò»¸öGOP¡£
+        // Îªï¿½Ë¼ï¿½ï¿½Êµï¿½ï¿½Ó³Ù£ï¿½ï¿½ï¿½ï¿½ï¿½Ë¿ï¿½ï¿½Ô¹Ø±ï¿½GOPï¿½ï¿½ï¿½æ£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°Ò»ï¿½ï¿½GOPï¿½ï¿½
         ss << "gc:" << srs_bool2switch(SRS_PERF_GOP_CACHE);
         // pq(play-queue)
         ss << ", pq:" << srsu2msi(SRS_PERF_PLAY_QUEUE) << "ms";
@@ -414,17 +417,17 @@ srs_error_t srs_detect_docker()
     return err;
 }
 /// <summary>
-/// ´Ëº¯ÊýÄÚ²¿ÅÐ¶ÏÊÇ·ñÐèÒªÒÔºóÌ¨Ä£Ê½ÔËÐÐ£¬²¢Æô¶¯È«²¿·þÎñ
+/// ï¿½Ëºï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½Ôºï¿½Ì¨Ä£Ê½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 /// <returns>
-/// ·µ»Ø ³É¹¦»òÕßÊ§°Ü
+/// ï¿½ï¿½ï¿½ï¿½ ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
 /// </returns>
 srs_error_t run_directly_or_daemon()
 {
     srs_error_t err = srs_success;
 
     // Try to load the config if docker detect failed.
-    // docker »·¾³¼à²âÊ§°Ü£¬´ÓÅäÖÃÎÄ¼þÖÐ¶ÁÈ¡ÊÇ·ñ´¦ÓÚdocker»·¾³ÖÐ
+    // docker ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ð¶ï¿½È¡ï¿½Ç·ï¿½ï¿½ï¿½dockerï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if (!_srs_in_docker) {
         _srs_in_docker = _srs_config->get_in_docker();
         if (_srs_in_docker) {
@@ -434,7 +437,7 @@ srs_error_t run_directly_or_daemon()
 
     // Load daemon from config, disable it for docker.
     // @see https://github.com/ossrs/srs/issues/1594
-    // ÔÚ docker »·¾³ÖÐ£¬Èç¹ûÉèÖÃ disable_daemon_for_docker Îª on (Ä¬ÈÏÉèÖÃÎªon), ÔòÈ¡ÏûºóÌ¨ÔËÐÐ
+    // ï¿½ï¿½ docker ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ disable_daemon_for_docker Îª on (Ä¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªon), ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ì¨ï¿½ï¿½ï¿½ï¿½
     bool run_as_daemon = _srs_config->get_daemon();
     if (run_as_daemon && _srs_in_docker && _srs_config->disable_daemon_for_docker()) {
         srs_warn("disable daemon for docker");
@@ -442,7 +445,7 @@ srs_error_t run_directly_or_daemon()
     }
     
     // If not daemon, directly run hybrid server.
-    // ·ÇºóÌ¨ÔËÐÐ£¬Ö±½ÓÆô¶¯·þÎñ
+    // ï¿½Çºï¿½Ì¨ï¿½ï¿½ï¿½Ð£ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if (!run_as_daemon) {
         if ((err = run_hybrid_server()) != srs_success) {
             return srs_error_wrap(err, "run hybrid");
@@ -488,15 +491,15 @@ srs_error_t run_directly_or_daemon()
     return err;
 }
 /// <summary>
-/// ´´½¨Æô¶¯¸÷Ïî·þÎñ
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 /// <returns></returns>
 srs_error_t run_hybrid_server()
 {
     srs_error_t err = srs_success;
     // Create servers and register them.
-	// _srs_hybridÖ¸ÏòÒ»¸öÈ«¾ÖSrsHybridServer¶ÔÏó
-	// Êµ¼Ê¹¤×÷¶ÔÏóSrsServerAdapterºÍRtcServerAdapter±»×¢Èëµ½SrsHybridServer¶ÔÏóÄÚ²¿
+	// _srs_hybridÖ¸ï¿½ï¿½Ò»ï¿½ï¿½È«ï¿½ï¿½SrsHybridServerï¿½ï¿½ï¿½ï¿½
+	// Êµï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½SrsServerAdapterï¿½ï¿½RtcServerAdapterï¿½ï¿½×¢ï¿½ëµ½SrsHybridServerï¿½ï¿½ï¿½ï¿½ï¿½Ú²ï¿½
     _srs_hybrid->register_server(new SrsServerAdapter());
 
 #ifdef SRS_SRT
@@ -508,27 +511,27 @@ srs_error_t run_hybrid_server()
 #endif
 
     // Do some system initialize.
-    // ´Ëº¯ÊýÄÚ²¿·Ö±ðÆô¶¯¼¸¸öÖÜÆÚ¶¨Ê±Æ÷£¬
-    // ²¢ÒÔ±éÀú·½Ê½µ÷ÓÃÉÏÃæÒÑ×¢²á·þÎñÆ÷µÄinitialize()º¯Êý
+    // ï¿½Ëºï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¶ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
+    // ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½initialize()ï¿½ï¿½ï¿½ï¿½
     if ((err = _srs_hybrid->initialize()) != srs_success) {
         return srs_error_wrap(err, "hybrid initialize");
     }
 
     // Circuit breaker to protect server, which depends on hybrid.
-    // ´ËÄ£¿éÓÃÓÚ·ÀÖ¹·þÎñÆ÷¹ýÔØ£¬ÊµÏÖ¹ýÔØ±£»¤
+    // ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½Ú·ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø£ï¿½Êµï¿½Ö¹ï¿½ï¿½Ø±ï¿½ï¿½ï¿½
     if ((err = _srs_circuit_breaker->initialize()) != srs_success) {
         return srs_error_wrap(err, "init circuit breaker");
     }
 
     // Should run util hybrid servers all done.
-    // ´Ëº¯ÊýÄÚ²¿ÒÔ±éÀú·½Ê½µ÷ÓÃÉÏÃæÒÑ×¢²á·þÎñÆ÷µÄrun½Ó¿Ú£¬²¢ÔÚ×îºó
-	// µ÷ÓÃsrs_usleep(SRS_UTIME_NO_TIMEOUT)Ê¹µ±Ç°µÄÔ­Ê¼Ð­³Ì½øÈëÐÝÃß×´Ì¬
+    // ï¿½Ëºï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½runï¿½Ó¿Ú£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	// ï¿½ï¿½ï¿½ï¿½srs_usleep(SRS_UTIME_NO_TIMEOUT)Ê¹ï¿½ï¿½Ç°ï¿½ï¿½Ô­Ê¼Ð­ï¿½Ì½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
     if ((err = _srs_hybrid->run()) != srs_success) {
         return srs_error_wrap(err, "hybrid run");
     }
 
     // After all done, stop and cleanup.
-    // Èç¹ûÖ´ÐÐµ½ÕâÀï£¬±íÊ¾Õû¸ö·þÎñÒÑ½áÊø£¬³ÌÐò¼´½«ÍË³ö
+    // ï¿½ï¿½ï¿½Ö´ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï£¬ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò¼´½ï¿½ï¿½Ë³ï¿½
     _srs_hybrid->stop();
 
     return err;
