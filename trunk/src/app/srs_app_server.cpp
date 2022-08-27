@@ -93,7 +93,7 @@ srs_error_t SrsBufferListener::listen(string i, int p)
     port = p;
     
     srs_freep(listener);
-    // ����һ��TCP����
+    // 创建一个TCP监听
     listener = new SrsTcpListener(this, ip, port);
     
     if ((err = listener->listen()) != srs_success) {
@@ -108,7 +108,7 @@ srs_error_t SrsBufferListener::listen(string i, int p)
 
 srs_error_t SrsBufferListener::on_tcp_client(srs_netfd_t stfd)
 {
-    // �յ�TCP����֮����� SrsServer::accept_client ���д��� 
+    // 收到TCP连接之后调用 SrsServer::accept_client 进行处理
     srs_error_t err = server->accept_client(type, stfd);
     if (err != srs_success) {
         srs_warn("accept client failed, err is %s", srs_error_desc(err).c_str());
@@ -634,18 +634,18 @@ srs_error_t SrsServer::initialize(ISrsServerCycle* ch)
     // never subscribe handler in constructor,
     // instead, subscribe handler in initialize method.
     srs_assert(_srs_config);
-    // ע�������ļ��ȼ���ʱ�Ļص�����
+    // 注册配置文件热加载时的回调处理
     _srs_config->subscribe(this);
     
     handler = ch;
     if(handler && (err = handler->initialize()) != srs_success){
         return srs_error_wrap(err, "handler initialize");
     }
-    // http �������, ������ƥ���handler
+    // http 请求解析, 并调用匹配的handler
     if ((err = http_api_mux->initialize()) != srs_success) {
         return srs_error_wrap(err, "http api initialize");
     }
-    // �ṩ http flv ������, �Լ�http��̬��Դ����
+    // 提供 http flv 流服务, 以及http静态资源服务
     if ((err = http_server->initialize()) != srs_success) {
         return srs_error_wrap(err, "http server initialize");
     }
@@ -690,7 +690,7 @@ srs_error_t SrsServer::acquire_pid_file()
     srs_error_t err = srs_success;
 
     // when srs in dolphin mode, no need the pid file.
-    // �����ģʽ
+    // 多进程模式
     if (_srs_config->is_dolphin()) {
         return srs_success;
     }
@@ -762,49 +762,49 @@ srs_error_t SrsServer::acquire_pid_file()
 srs_error_t SrsServer::listen()
 {
     srs_error_t err = srs_success;
-	// ����RTMP���˿���Ϣ��_srs_config->get_listens()�����������ļ���ȡ
-	// ����һ����������SrsBufferListener���˶����ڲ�����һ��SrsTcpListener����
-	// �����������SrsBufferListener::listen()->SrsTcpListener::listen()
-	// ÿ��SrsTcpListener�ڲ��и�Э��SrsTcpListener::cycle()�������
-	// ��Э����������ʽ����srs_accept()�����յ��µĿͻ������Ӻ󣬵��� 
-	// SrsBufferListener::on_tcp_client() -> SrsServer::accept_client()
-	// ����SrsServer::fd_to_resource()����RTMP���Ӷ���SrsRtmpConn
-	// ����SrsResourceManager::add(conn)��SrsRtmpConn��ӵ���Դ������
-	// ����SrsRtmpConn::start()������ÿ�����ӵ�Э��SrsRtmpConn::do_cycle()
+    // 监听RTMP，端口信息由_srs_config->get_listens()函数从配置文件获取
+    // 创建一个监听对象SrsBufferListener，此对象内部还有一个SrsTcpListener对象
+    // 监听过程详见SrsBufferListener::listen()->SrsTcpListener::listen()
+    // 每个SrsTcpListener内部有个协程SrsTcpListener::cycle()负责监听
+    // 该协程以阻塞方式调用srs_accept()，接收到新的客户端连接后，调用
+    // SrsBufferListener::on_tcp_client() -> SrsServer::accept_client()
+    // 调用SrsServer::fd_to_resource()生成RTMP连接对象SrsRtmpConn
+    // 调用SrsResourceManager::add(conn)将SrsRtmpConn添加到资源管理器
+    // 调用SrsRtmpConn::start()，启动每个连接的协程SrsRtmpConn::do_cycle()
     if ((err = listen_rtmp()) != srs_success) {
         return srs_error_wrap(err, "rtmp listen");
     }
-    // ����HTTP API
-	// �˿���Ϣ��_srs_config->get_http_api_listen()�����������ļ���ȡ
-	// �ڲ�Ҳͬ������SrsBufferListener�����SrsTcpListener����
-	// SrsTcpListener�ڲ�Э��SrsTcpListener::cycle()�������
-	// ����������ȫһ�£��������ڽ��յ������Ӻ�
-	// ����SrsServer::fd_to_resource()����SrsHttp(s)Api���Ӷ���
+    // 监听HTTP API
+    // 端口信息由_srs_config->get_http_api_listen()函数从配置文件获取
+    // 内部也同样创建SrsBufferListener对象和SrsTcpListener对象
+    // SrsTcpListener内部协程SrsTcpListener::cycle()负责监听
+    // 监听过程完全一致，区别在于接收到新连接后，
+    // 调用SrsServer::fd_to_resource()生成SrsHttp(s)Api连接对象
     if ((err = listen_http_api()) != srs_success) {
         return srs_error_wrap(err, "http api listen");
     }
-    // ����HTTPS API
+    // 监听HTTPS API
     if ((err = listen_https_api()) != srs_success) {
         return srs_error_wrap(err, "https api listen");
     }
-    // ����HTTP
-	// �ڲ�������������SrsBufferListener������������ȫһ�£��������ڽ��յ������Ӻ�
-	// ����SrsServer::fd_to_resource()����SrsResponseOnlyHttpConn���Ӷ���
+    // 监听HTTP
+    // 内部创建监听对象SrsBufferListener，监听过程完全一致，区别在于接收到新连接后，
+    // 调用SrsServer::fd_to_resource()生成SrsResponseOnlyHttpConn连接对象
     if ((err = listen_http_stream()) != srs_success) {
         return srs_error_wrap(err, "http stream listen");
     }
-    // ����HTTPS
+    // 监听HTTPS
     if ((err = listen_https_stream()) != srs_success) {
         return srs_error_wrap(err, "https stream listen");
     }
-	// �������ã��ڲ�����SrsUdpCasterListener��������
-	// SrsUdpCasterListener / SrsHttpFlvListener / SrsGb28181Manger
-	// ��һ���RTMP�����ϵ�������ڼ��ݶ�����ý��Э�飬�Ժ��ٵ�������
+    // 根据配置，内部创建SrsUdpCasterListener监听对象
+    // SrsUdpCasterListener / SrsHttpFlvListener / SrsGb28181Manger
+    // 这一块和RTMP本身关系不大，属于兼容多种流媒体协议，以后再单独分析
     if ((err = listen_stream_caster()) != srs_success) {
         return srs_error_wrap(err, "stream caster listen");
     }
-	// ����������Դ������SrsResourceManager��Ӧ��Э��
-	// ��Э���ڲ�·���Ƚϼ򵥣����ǵȴ������������ѣ�Ȼ�������ʬ����
+    // 启动连接资源管理器SrsResourceManager对应的协程
+    // 此协程内部路径比较简单，就是等待条件变量唤醒，然后清除僵尸连接
     if ((err = conn_manager->start()) != srs_success) {
         return srs_error_wrap(err, "connection manager");
     }
@@ -1198,21 +1198,21 @@ srs_error_t SrsServer::listen_rtmp()
     srs_error_t err = srs_success;
     
     // stream service port.
-    // Ҫ�����ķ���˿ڣ������Ƕ���˿�
+    // 要监听的服务端口，可能是多个端口
     std::vector<std::string> ip_ports = _srs_config->get_listens();
     srs_assert((int)ip_ports.size() > 0);
-    // �ر�ָ�����͵Ķ˿ڼ�������ʼ�µļ���
+    // 关闭指定类型的端口监听，开始新的监听
     close_listeners(SrsListenerRtmpStream);
-    // �����˿ڣ��������
+    // 遍历端口，逐个监听
     for (int i = 0; i < (int)ip_ports.size(); i++) {
-        // ����һ����������
+        // 创建一个监听对象
         SrsListener* listener = new SrsBufferListener(this, SrsListenerRtmpStream);
         listeners.push_back(listener);
 
         int port; string ip;
-        // ������IP��port
+        // 解析出IP和port
         srs_parse_endpoint(ip_ports[i], ip, port);
-        // ����
+        // 监听
         if ((err = listener->listen(ip, port)) != srs_success) {
             srs_error_wrap(err, "rtmp listen %s:%d", ip.c_str(), port);
         }
@@ -1397,8 +1397,8 @@ srs_error_t SrsServer::accept_client(SrsListenerType type, srs_netfd_t stfd)
     srs_error_t err = srs_success;
     
     ISrsStartableConneciton* conn = NULL;
-	// ����SrsServer::fd_to_resource()������SrsListenerType���������ɲ�ͬ�����Ӷ���
-	// SrsRtmpConn��SrsHttpApi��SrsResponseOnlyHttpConn
+    // 调用SrsServer::fd_to_resource()，根据SrsListenerType参数，生成不同的连接对象
+    // SrsRtmpConn、SrsHttpApi、SrsResponseOnlyHttpConn
     if ((err = fd_to_resource(type, stfd, &conn)) != srs_success) {
         if (srs_error_code(err) == ERROR_SOCKET_GET_PEER_IP && _srs_config->empty_ip_ok()) {
             srs_close_stfd(stfd); srs_error_reset(err);
@@ -1410,9 +1410,9 @@ srs_error_t SrsServer::accept_client(SrsListenerType type, srs_netfd_t stfd)
     
     // directly enqueue, the cycle thread will remove the client.
     conn_manager->add(conn);
-	// �������Ӷ���conn�ڲ���Э��
-	// 1��SrsRtmpConn����������Э����SrsRtmpConn::do_cycle()
-	// 2��SrsHttpApi��SrsResponseOnlyHttpConn���Ӷ����ڲ�����һ��SrsHttpConn���� ��������������Э����SrsHttpConn::do_cycle()
+    // 启动连接对象conn内部的协程
+    // 1）SrsRtmpConn对象启动的协程是SrsRtmpConn::do_cycle()
+    // 2）SrsHttpApi、SrsResponseOnlyHttpConn连接对象内部又有一个SrsHttpConn对象， 所以最终启动的协程是SrsHttpConn::do_cycle()
     if ((err = conn->start()) != srs_success) {
         return srs_error_wrap(err, "start conn coroutine");
     }
@@ -1428,7 +1428,7 @@ SrsHttpServeMux* SrsServer::api_server()
 srs_error_t SrsServer::fd_to_resource(SrsListenerType type, srs_netfd_t stfd, ISrsStartableConneciton** pr)
 {
     srs_error_t err = srs_success;
-    // ��ȡ����ϵͳ��socket�ļ�������
+    // 获取操作系统的socket文件描述符
     int fd = srs_netfd_fileno(stfd);
     string ip = srs_get_peer_ip(fd);
     int port = srs_get_peer_port(fd);
@@ -1441,7 +1441,7 @@ srs_error_t SrsServer::fd_to_resource(SrsListenerType type, srs_netfd_t stfd, IS
     }
     
     // check connection limitation.
-    // ������������ rtmp http ���е�����
+    // 检查连接限制，rtmp 与 http 使用共同的连接限制总数
     int max_connections = _srs_config->get_max_connections();
     if (handler && (err = handler->on_accept_client(max_connections, (int)conn_manager->size())) != srs_success) {
         return srs_error_wrap(err, "drop client fd=%d, ip=%s:%d, max=%d, cur=%d for err: %s",

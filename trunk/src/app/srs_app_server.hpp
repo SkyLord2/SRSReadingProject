@@ -84,11 +84,11 @@ public:
     SrsBufferListener(SrsServer* server, SrsListenerType type);
     virtual ~SrsBufferListener();
 public:
-    // ¼àÌıÖ¸¶¨µÄipºÍ¶Ë¿Ú
+    // ç›‘å¬æŒ‡å®šçš„ipå’Œç«¯å£
     virtual srs_error_t listen(std::string ip, int port);
 // Interface ISrsTcpHandler
 public:
-    // ¼àÌıµ½Ò»¸öTCPÁ¬½ÓÖ®ºóµÄ´¦Àí
+    // ç›‘å¬åˆ°ä¸€ä¸ªTCPè¿æ¥ä¹‹åçš„å¤„ç†
     virtual srs_error_t on_tcp_client(srs_netfd_t stfd);
 };
 
@@ -253,7 +253,7 @@ public:
     virtual srs_error_t initialize_st();
     virtual srs_error_t initialize_signal();
     virtual srs_error_t acquire_pid_file();
-    /* ¼àÌı rtmp/http api/http stream µÄÇëÇó*/
+    /* ç›‘å¬ rtmp/http api/http stream çš„è¯·æ±‚*/
     virtual srs_error_t listen();
     virtual srs_error_t register_signal();
     virtual srs_error_t http_handle();
@@ -291,7 +291,7 @@ private:
     virtual srs_error_t notify(int event, srs_utime_t interval, srs_utime_t tick);
 private:
     // listen at specified protocol.
-    /* ¼àÌı rtmp */
+    /* ç›‘å¬ rtmp */
     virtual srs_error_t listen_rtmp();
     virtual srs_error_t listen_http_api();
     virtual srs_error_t listen_https_api();
@@ -306,7 +306,7 @@ private:
 // For internal only
 public:
     // When listener got a fd, notice server to accept it. 
-    // SrsTcpListener::cycle()¼àÌıĞ­³Ì½ÓÊÕµ½Ò»ÌõĞÂÁ¬½Óºóµ÷ÓÃSrsServer::accept_client()º¯ÊıµÄ´¦Àí¹ı³Ì
+    // SrsTcpListener::cycle()ç›‘å¬åç¨‹æ¥æ”¶åˆ°ä¸€æ¡æ–°è¿æ¥åè°ƒç”¨SrsServer::accept_client()å‡½æ•°çš„å¤„ç†è¿‡ç¨‹
     // @param type, the client type, used to create concrete connection,
     //       for instance RTMP connection to serve client.
     // @param stfd, the client fd in st boxed, the underlayer fd.
@@ -314,7 +314,7 @@ public:
     // TODO: FIXME: Fetch from hybrid server manager.
     virtual SrsHttpServeMux* api_server();
 private:
-    // ¸ù¾İ¿Í»§¶ËÁ¬½ÓÀàĞÍ£¬´´½¨²»Í¬µÄÁ¬½Ó¶ÔÏó
+    // æ ¹æ®å®¢æˆ·ç«¯è¿æ¥ç±»å‹ï¼Œåˆ›å»ºä¸åŒçš„è¿æ¥å¯¹è±¡
     virtual srs_error_t fd_to_resource(SrsListenerType type, srs_netfd_t stfd, ISrsStartableConneciton** pr);
 // Interface ISrsResourceManager
 public:
@@ -341,16 +341,16 @@ public:
 
 // The SRS server adapter, the master server.
 /*
-SRS4.0 RTMP·şÎñÄ£¿é¶ÔÓ¦µÄÀà¶ÔÏóÊÇSrsServerAdapter£¬
-SrsServerAdapterÓĞSrsServerAdapter::initialize()ºÍSrsServerAdapter::run()Á½¸öÈë¿Úº¯Êı£¬
-RTMP·şÎñÄ£¿éµÄÆô¶¯¹¤×÷Ö÷ÒªÔÚSrsServerAdapter::run()½Ó¿ÚÖĞÍê³É¡£
+SRS4.0 RTMPæœåŠ¡æ¨¡å—å¯¹åº”çš„ç±»å¯¹è±¡æ˜¯SrsServerAdapterï¼Œ
+SrsServerAdapteræœ‰SrsServerAdapter::initialize()å’ŒSrsServerAdapter::run()ä¸¤ä¸ªå…¥å£å‡½æ•°ï¼Œ
+RTMPæœåŠ¡æ¨¡å—çš„å¯åŠ¨å·¥ä½œä¸»è¦åœ¨SrsServerAdapter::run()æ¥å£ä¸­å®Œæˆã€‚
 */
 class SrsServerAdapter : public ISrsHybridServer
 {
 private:
     /*
-    ¾ßÌå¹¦ÄÜÎ¯ÍĞ¸øSrsServerÀ´Íê³É
-    SrsServer°üÀ¨ÁËRTMP/HTTP/HTTP-APIµÈ¼¸ºõËùÓĞÖ÷Òª¹¦ÄÜ
+    å…·ä½“åŠŸèƒ½å§”æ‰˜ç»™SrsServeræ¥å®Œæˆ
+    SrsServeråŒ…æ‹¬äº†RTMP/HTTP/HTTP-APIç­‰å‡ ä¹æ‰€æœ‰ä¸»è¦åŠŸèƒ½
     */
     SrsServer* srs;
 public:
