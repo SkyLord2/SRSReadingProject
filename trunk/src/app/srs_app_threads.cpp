@@ -276,28 +276,28 @@ srs_error_t srs_thread_initialize()
     srs_error_t err = srs_success;
 
     // Root global objects.
-    // ³õÊ¼»¯ÈÕÖ¾£¬Ğ­³ÌÉÏÏÂÎÄ»·¾³(·ÖÅäidÖ®ÀàµÄ)£¬ÅäÖÃÎÄ¼ş¶ÁÈ¡¶ÔÏó£¬cds
+    // åˆå§‹åŒ–æ—¥å¿—ï¼Œåç¨‹ä¸Šä¸‹æ–‡ç¯å¢ƒ(åˆ†é…idä¹‹ç±»çš„)ï¼Œé…ç½®æ–‡ä»¶è¯»å–å¯¹è±¡ï¼Œcds
     _srs_log = new SrsFileLog();
     _srs_context = new SrsThreadContext();
     _srs_config = new SrsConfig();
 
     // The clock wall object.
-    // Ê±ÖÓ¶ÔÏó£¬cds
+    // æ—¶é’Ÿå¯¹è±¡ï¼Œcds
     _srs_clock = new SrsWallClock();
 
     // The pps cids depends by st init.
-    // ÂëÂÊ¼ÆËã¶ÔÏó£¬cds
+    // ç ç‡è®¡ç®—å¯¹è±¡ï¼Œcds
     _srs_pps_cids_get = new SrsPps();
     _srs_pps_cids_set = new SrsPps();
 
     // Initialize ST, which depends on pps cids.
-    // ³õÊ¼»¯ state threads Ğ­³Ì£¬cds
+    // åˆå§‹åŒ– state threads åç¨‹ï¼Œcds
     if ((err = srs_st_init()) != srs_success) {
         return srs_error_wrap(err, "initialize st failed");
     }
 
     // The global objects which depends on ST.
-    // ÒÀÀµÓÚĞ­³ÌµÄÈ«¾Ö¶ÔÏó
+    // ä¾èµ–äºåç¨‹çš„å…¨å±€å¯¹è±¡
     _srs_hybrid = new SrsHybridServer();
     _srs_sources = new SrsLiveSourceManager();
     _srs_stages = new SrsStageManager();
@@ -416,7 +416,7 @@ srs_error_t srs_thread_initialize()
 #endif
 
     // Create global async worker for DVR.
-    // ´´½¨Ò»¸öÈ«¾ÖµÄÒì²½Â¼ÖÆĞ­³Ì
+    // åˆ›å»ºä¸€ä¸ªå…¨å±€çš„å¼‚æ­¥å½•åˆ¶åç¨‹
     _srs_dvr_async = new SrsAsyncCallWorker();
     if ((err = _srs_dvr_async->start()) != srs_success) {
         return srs_error_wrap(err, "dvr async");

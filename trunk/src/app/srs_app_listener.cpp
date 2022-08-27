@@ -218,7 +218,7 @@ SrsTcpListener::SrsTcpListener(ISrsTcpHandler* h, string i, int p)
     port = p;
 
     lfd = NULL;
-    // �յĶ���û���κβ�����
+    // 空的对象，没有任何操作？
     trd = new SrsDummyCoroutine();
 }
 

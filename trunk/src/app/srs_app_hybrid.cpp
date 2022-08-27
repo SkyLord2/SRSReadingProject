@@ -158,7 +158,7 @@ srs_error_t SrsHybridServer::initialize()
     srs_error_t err = srs_success;
 
     // Start the timer first.
-    // Ã¿¸ö¶¨Ê±Æ÷¶¼ÊÇÒ»¸öĞ­³Ì
+    // æ¯ä¸ªå®šæ—¶å™¨éƒ½æ˜¯ä¸€ä¸ªåç¨‹
     if ((err = timer20ms_->start()) != srs_success) {
         return srs_error_wrap(err, "start timer");
     }
@@ -192,7 +192,7 @@ srs_error_t SrsHybridServer::initialize()
     return err;
 }
 /// <summary>
-/// Æô¶¯¸÷¸öÁ÷Ã½Ìå·şÎñÄ£¿é£¬²¢Í¨¹ısrs_usleep()º¯Êı×èÈûµ±Ç°µÄÔ­Ê¼Ğ­³Ì
+/// å¯åŠ¨å„ä¸ªæµåª’ä½“æœåŠ¡æ¨¡å—ï¼Œå¹¶é€šè¿‡srs_usleep()å‡½æ•°é˜»å¡å½“å‰çš„åŸå§‹åç¨‹
 /// </summary>
 /// <returns></returns>
 srs_error_t SrsHybridServer::run()
