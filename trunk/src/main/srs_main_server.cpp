@@ -47,6 +47,8 @@ using namespace std;
 #include <srt_server.hpp>
 #endif
 
+#include <opencv2/opencv.hpp>
+
 // pre-declare
 srs_error_t run_directly_or_daemon();
 srs_error_t srs_detect_docker();
@@ -137,7 +139,7 @@ srs_error_t do_main(int argc, char** argv)
     if (_srs_config->get_object_detection_enabled()) {
         srs_trace("object detection is enabled");
     }
-
+    srs_trace("opencv version: %s", CV_VERSION);
     // config already applied to log.
     srs_trace2(TAG_MAIN, "%s, %s", RTMP_SIG_SRS_SERVER, RTMP_SIG_SRS_LICENSE);
     srs_trace("authors: %sand %s", RTMP_SIG_SRS_AUTHORS, SRS_CONSTRIBUTORS);
