@@ -34,6 +34,7 @@ using namespace std;
 #include <srs_app_dash.hpp>
 #include <srs_protocol_format.hpp>
 #include <srs_app_rtc_source.hpp>
+#include <srs_app_object_detection.hpp>
 
 #define CONST_MAX_JITTER_MS         250
 #define CONST_MAX_JITTER_MS_NEG         -250
@@ -814,6 +815,7 @@ SrsOriginHub::SrsOriginHub()
     dash = new SrsDash();
     dvr = new SrsDvr();
     encoder = new SrsEncoder();
+    objectDetection = new SrsObjectDetection();
 #ifdef SRS_HDS
     hds = new SrsHds();
 #endif
@@ -842,6 +844,7 @@ SrsOriginHub::~SrsOriginHub()
     srs_freep(dash);
     srs_freep(dvr);
     srs_freep(encoder);
+    srs_freep(objectDetection);
 #ifdef SRS_HDS
     srs_freep(hds);
 #endif
@@ -1142,7 +1145,11 @@ srs_error_t SrsOriginHub::on_publish()
     if ((err = dvr->on_publish(req)) != srs_success) {
         return srs_error_wrap(err, "dvr publish");
     }
-    
+
+    // object detection
+    if ((err = objectDetection->on_publish(req)) != srs_success) {
+        return srs_error_wrap(err, "object detectiong publish");
+    }
     // TODO: FIXME: use initialize to set req.
 #ifdef SRS_HDS
     if ((err = hds->on_publish(req)) != srs_success) {

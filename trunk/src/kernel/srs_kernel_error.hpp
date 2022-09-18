@@ -101,7 +101,7 @@
 #define ERROR_SOCKET_SETREUSEADDR           1079
 #define ERROR_SOCKET_SETCLOSEEXEC           1080
 #define ERROR_SOCKET_ACCEPT                 1081
-
+#define ERROR_PIPE_CREATE                   1082
 ///////////////////////////////////////////////////////
 // RTMP protocol error.
 ///////////////////////////////////////////////////////
@@ -272,7 +272,9 @@
 #define ERROR_INOTIFY_OPENFD                3094
 #define ERROR_INOTIFY_WATCH                 3095
 #define ERROR_HTTP_URL_UNESCAPE             3096
-
+#define ERROR_OBJECT_DETECTION_FORK         3097
+#define ERROR_OPENCV_OPEN_STREAM            3098
+#define ERROR_OPENCV_OPEN_WRITER            3099
 ///////////////////////////////////////////////////////
 // HTTP/StreamCaster protocol error.
 ///////////////////////////////////////////////////////

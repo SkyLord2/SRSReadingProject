@@ -154,6 +154,7 @@ std::string SrsRtmpConn::desc()
 }
 
 // TODO: return detail message when error for client.
+// 握手，建立连接
 srs_error_t SrsRtmpConn::do_cycle()
 {
     srs_error_t err = srs_success;
@@ -212,7 +213,7 @@ srs_error_t SrsRtmpConn::do_cycle()
                 srs_server_ip.c_str(), srs_version.c_str(), srs_pid, srs_id);
         }
     }
-    
+    // 在 sream_service_cycle 函数中区分 推流 还是 拉流
     if ((err = service_cycle()) != srs_success) {
         err = srs_error_wrap(err, "service cycle");
     }
@@ -399,7 +400,7 @@ srs_error_t SrsRtmpConn::service_cycle()
         if ((err = trd->pull()) != srs_success) {
             return srs_error_wrap(err, "rtmp: thread quit");
         }
-        
+        // 区分 推流 还是 拉流
         err = stream_service_cycle();
         
         // stream service must terminated with error, never success.
@@ -831,6 +832,7 @@ srs_error_t SrsRtmpConn::publishing(SrsLiveSource* source)
     }
     
     // TODO: FIXME: Should refine the state of publishing.
+    // 开始推流，判断是否需要进行 目标检测, 在这里 还是 在SrsLiveSource cds
     if ((err = acquire_publish(source)) == srs_success) {
         // use isolate thread to recv,
         // @see: https://github.com/ossrs/srs/issues/237

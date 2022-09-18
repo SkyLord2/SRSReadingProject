@@ -42,6 +42,7 @@ class SrsDvr;
 class SrsDash;
 class SrsEncoder;
 class SrsBuffer;
+class SrsObjectDetection;
 #ifdef SRS_HDS
 class SrsHds;
 #endif
@@ -323,6 +324,8 @@ private:
     SrsDvr* dvr;
     // transcoding handler.
     SrsEncoder* encoder;
+    // object detection handler
+    SrsObjectDetection* objectDetection;
 #ifdef SRS_HDS
     // adobe hds(http dynamic streaming).
     SrsHds *hds;

@@ -38,12 +38,6 @@ foreach(DEPS_LIB ${DEPS_LIBS})
 endforeach()
 
 ###########################################################
-# opencv
-SET(OpenCV_DIR /usr/local/lib/cmake) # xxxx目录包含OpenCVConfig.cmake
-FIND_PACKAGE(OpenCV REQUIRED)   # 找到opencv库
-INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
-
-###########################################################
 # Setup SRS project
 INCLUDE_DIRECTORIES(${SRS_DIR}/objs
         ${SRS_DIR}/objs/st
@@ -57,7 +51,7 @@ INCLUDE_DIRECTORIES(${SRS_DIR}/objs
         ${SRS_DIR}/src/app
         ${SRS_DIR}/src/service)
 
-set(SOURCE_FILES ${SRS_DIR}/src/main/srs_main_server.cpp ../../src/app/srs_app_object_detection.hpp ../../src/app/srs_app_object_detection.cpp)
+set(SOURCE_FILES ${SRS_DIR}/src/main/srs_main_server.cpp)
 AUX_SOURCE_DIRECTORY(${SRS_DIR}/src/core SOURCE_FILES)
 AUX_SOURCE_DIRECTORY(${SRS_DIR}/src/kernel SOURCE_FILES)
 AUX_SOURCE_DIRECTORY(${SRS_DIR}/src/protocol SOURCE_FILES)
@@ -69,7 +63,6 @@ ADD_EXECUTABLE(srs ${SOURCE_FILES})
 TARGET_LINK_LIBRARIES(srs dl)
 TARGET_LINK_LIBRARIES(srs ${DEPS_LIBS})
 TARGET_LINK_LIBRARIES(srs -ldl -pthread)
-TARGET_LINK_LIBRARIES(srs ${OpenCV_LIBRARIES})
 
 MESSAGE(STATUS "@see https://github.com/ossrs/srs/wiki/v4_CN_IDE")
 
