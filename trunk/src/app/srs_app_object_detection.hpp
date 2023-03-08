@@ -15,6 +15,6 @@ public:
 
 public:
     srs_error_t on_publish(SrsRequest* r);
-    srs_error_t do_object_detection(std::string streamUrl)
+    srs_error_t do_object_detection(std::string streamUrl);
 };
 #endif //SRS_APP_OBJECT_DETECTION_HPP
